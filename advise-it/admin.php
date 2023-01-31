@@ -19,7 +19,7 @@ or die("error connecting");
 
     <h1>List of Saved Plans for Advise-It</h1>
     <div id="home">
-        <a href="home.html"><button> Return to home page</button></a>
+        <a href="home.php"><button> Return to home page</button></a>
     </div>
 
 <table id="plans" class="display">
@@ -32,6 +32,7 @@ or die("error connecting");
         <th>Summer</th>
         <th>Last Updated</th>
         <th>Advisor</th>
+        <th>URL</th>
     </tr>
     </thead>
     <tbody>
@@ -60,8 +61,7 @@ foreach($result as $row) {
     <td>$summer</td>
     <td>$lastUpdate</td>
     <td>$advisor</td>
-    <td></td>
-
+    <td><a href='planner.php?token=$token'>$token</a></td>
 
 </tr>";
 }

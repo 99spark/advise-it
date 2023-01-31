@@ -6,37 +6,35 @@ or die("error connecting");
 
 $validToken = $_GET["token"];
 
-if(!is_null($validToken))
-{
-    $_SESSION['token'] = $validToken;
-
-    $query = "SELECT * FROM adviseIt WHERE token = '$validToken'";
-    $result2 = mysqli_query($cnxn,$query);
-
-
-    if(empty(mysqli_fetch_row($result2)))
-    {
-        header("Location: https://afischer4.greenriverdev.com/advise-it/");
-    }
-
-    foreach($result2 as $row)
-    {
-        $newFall = $row['fall'];
-        $newWinter = $row['winter'];
-        $newSpring = $row['spring'];
-        $newSummer = $row['summer'];
-        $newAdvisor = $row['advisor'];
-    }
-
-
+if($validToken == null){
+    header("Location: https://afischer4.greenriverdev.com/advise-it/home.php");
 }
 
-if (empty ($_POST) && is_null($validToken)) {
-    $token = bin2hex(random_bytes(3));
-    $_SESSION["token"] = $token;
+if($_SESSION["token"] != $validToken) {
+    $query = "SELECT * FROM `adviseIt` WHERE token = '$validToken'";
+    $result = mysqli_query($cnxn, $query);
+
+    if (empty(mysqli_fetch_row($result))) {
+        header("Location: https://halsamach.greenriverdev.com/home.php");
+
+    }
 }
 
-$token = $_SESSION["token"];
+$_SESSION["token"] = $validToken;
+
+$query = "SELECT * FROM `adviseIt` WHERE token = '$validToken'";
+$result = mysqli_query($cnxn, $query);
+
+if(!empty(mysqli_fetch_row($result))){
+    foreach ($result as $row) {
+        $newFall = $row["fall"];
+        $newWinter = $row["winter"];
+        $newSpring = $row["spring"];
+        $newSummer = $row["summer"];
+        $newAdvisor = $row["advisor"];
+    }
+
+}
 
 $fall = $_POST["fall"];
 $winter = $_POST["winter"];
@@ -45,33 +43,60 @@ $summer = $_POST["summer"];
 $lastUpdate = date("Y-m-d h:i:s");
 $advisor = $_POST["advisor"];
 
-if(!empty($_POST)){
-    $select = "SELECT * FROM `adviseIt` WHERE token = '$token'";
+if (!empty($_POST)) {
+    $select = "SELECT * FROM `adviseIt` WHERE token = '$validToken'";
     $result = mysqli_query($cnxn, $select);
 
     if (empty(mysqli_fetch_row($result))) {
-        $sql = "INSERT INTO adviseIt (token, fall, winter, spring, summer, lastUpdate,advisor)
-VALUES('$token','$fall','$winter','$spring','$summer','$lastUpdate','$advisor')";
+        $sql = "INSERT INTO adviseIt (token, fall, winter, spring, summer, lastUpdate, advisor)
+VALUES('$validToken','$fall','$winter','$spring','$summer','$lastUpdate', '$advisor')";
 
         mysqli_query($cnxn, $sql);
-    } else{
+    } else {
         $sql = "UPDATE adviseIt SET fall = '$fall', winter = '$winter', spring  = '$spring',
-                    summer= '$summer', lastUpdate = '$lastUpdate', advisor = '$advisor' WHERE token = '$token'";
+                    summer= '$summer', lastUpdate = '$lastUpdate', advisor = '$advisor' WHERE token = '$validToken'";
 
-        mysqli_query($cnxn , $sql);
+        mysqli_query($cnxn, $sql);
     }
 }
 
+if (empty($_POST)) {
+    $_SESSION["fall"] = $newFall;
+    $_SESSION["winter"] = $newWinter;
+    $_SESSION["spring"] = $newSpring;
+    $_SESSION["summer"] = $newSummer;
+    $_SESSION["advisor"] = $newAdvisor;
+}
 
+if (!empty($_POST)) {
+    $_SESSION["fall"] = $fall;
+    $_SESSION["winter"] = $winter;
+    $_SESSION["spring"] = $spring;
+    $_SESSION["summer"] = $summer;
+    $_SESSION["lastUpdate"] = $lastUpdate;
+    $_SESSION["advisor"] = $advisor;
+}
+
+echo $lastUpdate;
+
+$year = substr($lastUpdate, 0, 4);
+$month = substr($lastUpdate, 5, 2);
+echo "<br>";
+echo $year;
+echo "<br>";
+echo $month;
 
 ?>
+
 <link rel="stylesheet" href="styles.css">
 <div id="token">
 <?php
-print "<h1> Token: " . $_SESSION["token"];
+print "<h1> Token: " . $validToken;
 ?>
 </div>
 <br>
+
+    <button id="previousyear">Add Year</button>
 
 <form action="#" method="post">
 
@@ -148,6 +173,7 @@ print "<h1> Token: " . $_SESSION["token"];
             ?>
         </textarea>
     </div>
+    <button id="newyear">Add Year</button>
 
     <div id="savePlan">
         <button id="save" type="submit"> Save</button>
@@ -155,6 +181,12 @@ print "<h1> Token: " . $_SESSION["token"];
 
 
 </form>
+
+    <form action="print.php" method="post">
+        <div id="print">
+            <button id="print" type="submit"> Print</button>
+        </div>
+    </form>
 
 <?php
 if (!empty($_POST)) {
